@@ -1,23 +1,32 @@
 # Usa una imagen base de Node.js
-FROM node:18-alpine
+FROM node:18
 
-# Establece el directorio de trabajo en /app
+# Establece el directorio de trabajo en el contenedor
 WORKDIR /app
 
-# Copia los archivos de configuración de dependencias (package.json y package-lock.json)
+# Copia los archivos de configuración del servidor Node.js
 COPY package*.json ./
 
-# Instala las dependencias
+# Instala las dependencias para el servidor Node.js
 RUN npm install
 
-# Copia el resto del código de la aplicación
+# Instala Angular CLI de forma global
+RUN npm install -g @angular/cli
+
+# Cambia al directorio del cliente para instalar dependencias de Angular
+WORKDIR /app/client
+COPY client/package*.json ./
+RUN npm install
+
+# Vuelve al directorio del servidor y copia el resto de los archivos del proyecto
+WORKDIR /app
 COPY . .
 
-# Compila la aplicación Angular
-RUN npm run build
+# Instala 'concurrently' para ejecutar el servidor Node.js y Angular juntos
+RUN npm install concurrently --save
 
-# Expone el puerto 4200 para que sea accesible fuera del contenedor
-EXPOSE 4200
+# Expone los puertos necesarios
+EXPOSE 3000 4200
 
-# Comando para iniciar la aplicación Angular con --host 0.0.0.0
-CMD npm start -- --host 0.0.0.0
+# Comando para ejecutar ambos procesos
+CMD ["npx", "concurrently", "\"node server.js\"", "\"cd client && ng serve --host 0.0.0.0\""]
