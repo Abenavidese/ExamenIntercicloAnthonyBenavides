@@ -18,3 +18,6 @@ Para construir la imagen Docker, sigue estos pasos:
 1---npm install socket.io-client	To install socket.io for our client app
 2---npm run build	--Build de la parte de angular
 3--npm run start	--Start de la parte de angular
+
+
+docker run -p 80:80 -p 3000:3000 -p 4200:42000 Anthonybenavides12/examendocker111
